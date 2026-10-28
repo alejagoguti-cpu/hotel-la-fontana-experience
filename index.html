@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>La Fontana | Cámara orbital 360°</title><style>
+*{box-sizing:border-box}body{margin:0;background:#111917;color:#fff;font:14px Arial,sans-serif;overflow:hidden}canvas{display:block}.top{position:absolute;top:24px;left:28px;pointer-events:none}.top small{letter-spacing:.3em;color:#b9c4bb}.top h1{font-size:24px;font-weight:400;margin:8px 0}.bottom{position:absolute;bottom:24px;left:28px;color:#c4cdc7;line-height:1.6}.actions{position:absolute;right:24px;bottom:24px;display:flex;gap:8px}button{background:#f2f0e9;color:#17221d;border:0;border-radius:4px;padding:12px 16px;cursor:pointer}button:focus-visible{outline:3px solid #86b8ac}.notice{position:absolute;top:24px;right:24px;background:#202c27d9;padding:12px 16px;border-radius:5px;max-width:260px;line-height:1.5}@media(max-width:600px){.top{left:16px;top:18px}.top h1{font-size:20px}.notice{top:95px;right:16px;left:16px;max-width:none}.bottom{bottom:84px;left:16px}.actions{left:16px;right:16px;bottom:18px}button{flex:1}}
+</style></head><body><div class="top"><small>HOTEL LA FONTANA</small><h1>Exploración orbital 360°</h1></div><div class="notice">Vista de prueba de cámara. El volumen es provisional y NO representa la arquitectura del hotel.</div><div class="bottom">Arrastra para rotar · Rueda o pellizca para zoom<br>Botón derecho o dos dedos para desplazar</div><div class="actions"><button id="reset">Restablecer vista</button><button id="auto">Rotación automática: no</button></div>
+<script type="module">
+import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.161.0/build/three.module.js';
+import {OrbitControls} from 'https://cdn.jsdelivr.net/npm/three@0.161.0/examples/jsm/controls/OrbitControls.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color('#17221d');scene.fog=new THREE.Fog('#17221d',45,100);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,.1,500);camera.position.set(22,15,23);
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;document.body.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xe8f3ff,0x3b5140,2));const sun=new THREE.DirectionalLight(0xfff1dc,2.5);sun.position.set(12,22,9);sun.castShadow=true;sun.shadow.mapSize.set(1024,1024);scene.add(sun);
+const ground=new THREE.Mesh(new THREE.PlaneGeometry(180,180),new THREE.MeshStandardMaterial({color:0x28392f,roughness:1}));ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground);
+const block=(w,h,d,x,y,z,color)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),new THREE.MeshStandardMaterial({color,roughness:.8}));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;scene.add(m)};
+block(13,2.5,9,0,1.25,0,0xb4ada0);block(9,3,7,0,4,0,0xd1c9b9);block(7,2.5,5,0,6.75,0,0xeee6d8);block(14,.3,10,0,2.6,0,0x595b55);block(10,.3,8,0,5.6,0,0x595b55);
+const controls=new OrbitControls(camera,renderer.domElement);controls.target.set(0,3,0);controls.enableDamping=true;controls.dampingFactor=.06;controls.minDistance=8;controls.maxDistance=60;controls.minPolarAngle=.15;controls.maxPolarAngle=Math.PI/2-.02;controls.enablePan=true;controls.autoRotate=false;controls.autoRotateSpeed=.65;controls.update();
+document.getElementById('reset').onclick=()=>{camera.position.set(22,15,23);controls.target.set(0,3,0);controls.update()};
+document.getElementById('auto').onclick=e=>{controls.autoRotate=!controls.autoRotate;e.currentTarget.textContent='Rotación automática: '+(controls.autoRotate?'sí':'no')};
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+renderer.setAnimationLoop(()=>{controls.update();renderer.render(scene,camera)});
+</script></body></html>
